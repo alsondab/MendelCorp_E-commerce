@@ -3,6 +3,7 @@ import { create } from 'zustand'
 
    import { Cart, OrderItem } from '@/types'
    import { calcDeliveryDateAndPrice } from '@/lib/actions/order.actions'
+   import { FREE_SHIPPING_MIN_PRICE } from '@/lib/constants'
 
    const initialState: Cart = {
      items: [],
@@ -99,7 +100,7 @@ import { create } from 'zustand'
           },
         })
         },
-        removeItem: async (item: OrderItem) => {
+        removeItem: (item: OrderItem) => {
             const { items } = get().cart
             const updatedCartItems = items.filter(
               (x) =>
@@ -107,13 +108,21 @@ import { create } from 'zustand'
                 x.color !== item.color ||
                 x.size !== item.size
             )
+            
+            // Calculate prices synchronously for remove operation
+            const itemsPrice = updatedCartItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
+            const shippingPrice = itemsPrice > FREE_SHIPPING_MIN_PRICE ? 0 : 5
+            const taxPrice = itemsPrice * 0.15
+            const totalPrice = itemsPrice + shippingPrice + taxPrice
+            
             set({
               cart: {
                 ...get().cart,
                 items: updatedCartItems,
-                ...(await calcDeliveryDateAndPrice({
-                  items: updatedCartItems,
-                })),
+                itemsPrice,
+                shippingPrice,
+                taxPrice,
+                totalPrice,
               },
             })
           },

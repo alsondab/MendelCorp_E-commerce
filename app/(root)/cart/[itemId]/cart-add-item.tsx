@@ -30,8 +30,9 @@ export default function CartAddItem({ itemId }: { itemId: string }) {
                 width={80}
                 height={80}
                 style={{
-                  maxWidth: '100%',
+                  width: 'auto',
                   height: 'auto',
+                  maxWidth: '100%',
                 }}
               />
             </Link>
