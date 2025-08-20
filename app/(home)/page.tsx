@@ -8,7 +8,8 @@ import {
   getRecentProducts, 
   getPopularProducts, 
   getProductsByPopularTags,
-  getDealProducts
+  getDealProducts,
+  getProductsByTag
 } from '@/lib/actions/product.actions'
 import { Card, CardContent } from '@/components/ui/card'
 import ProductSlider from '@/components/shared/product/product-slider'
@@ -63,8 +64,8 @@ export default async function Page() {
     },
   ]
 
-  const todaysDeals = await getDealProducts(8)
-
+  const todaysDeals = await getProductsByTag({ tag: 'todays-deal' })
+  const bestSellingProducts = await getProductsByTag({ tag: 'best-seller' })
   return (
     <>
       <HomeCarousel items={data.carousels} />
@@ -77,6 +78,16 @@ export default async function Page() {
           <ProductSlider title="Today's Deals" products={todaysDeals} />
         </CardContent>
       </Card>
+
+      <Card className='w-full rounded-none'>
+       <CardContent className='p-4 items-center gap-3'>
+         <ProductSlider
+           title='Best Selling Products'
+           products={bestSellingProducts}
+           hideDetails
+         />
+       </CardContent>
+     </Card>
     </>
   )
 }
