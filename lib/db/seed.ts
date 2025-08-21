@@ -1,6 +1,7 @@
 import data from '@/lib/data'
 import { connectToDatabase } from './'
 import Product from './models/product.model'
+import User from './models/user.model'
 import { cwd } from 'process'
 import { loadEnvConfig } from '@next/env'
 
@@ -11,7 +12,8 @@ const main = async () => {
     console.log('🌱 Début du seeding...')
     
     // Vérifier que les données existent
-    const { products } = data
+    const { products, users } = data
+    console.log(`👥 ${users.length} utilisateurs à insérer`)
     console.log(`📦 ${products.length} produits à insérer`)
     
     // Connexion à la base
@@ -19,11 +21,21 @@ const main = async () => {
     await connectToDatabase(process.env.MONGODB_URI)
     console.log('✅ Connexion réussie')
     
+    // Suppression des anciens utilisateurs
+    console.log('🗑️ Suppression des anciens utilisateurs...')
+    const deleteUsersResult = await User.deleteMany({})
+    console.log(`❌ ${deleteUsersResult.deletedCount} utilisateurs supprimés`)
+
     // Suppression des anciens produits
     console.log('🗑️ Suppression des anciens produits...')
     const deleteResult = await Product.deleteMany({})
     console.log(`❌ ${deleteResult.deletedCount} produits supprimés`)
     
+    // Insertion des nouveaux utilisateurs
+    console.log('📥 Insertion des nouveaux utilisateurs...')
+    const createdUsers = await User.insertMany(users)
+    console.log(`✅ ${createdUsers.length} utilisateurs créés`)
+
     // Insertion des nouveaux produits
     console.log('📥 Insertion des nouveaux produits...')
     const createdProducts = await Product.insertMany(products)
